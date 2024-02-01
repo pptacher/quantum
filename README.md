@@ -1,5 +1,5 @@
 # Quantum Computation and Quantum Information
-Some work around the book "Quantum Computation and Quantum Information".
+Full solutions of some problems from the book "Quantum Computation and Quantum Information".
 
 
 ## references
