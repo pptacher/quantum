@@ -1,0 +1,1042 @@
+\documentclass[10pt, fleqn]{amsart}   
+
+\usepackage[T1]{fontenc} 
+%\usepackage[latin1]{inputenc}
+%\usepackage[english,francais]{babel}
+\usepackage[retainorgcmds]{IEEEtrantools}   \usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{pstricks}
+\usepackage{pst-node}
+\usepackage{pst-plot}
+\usepackage{cancel}
+\usepackage{empheq}
+\usepackage{mathtools}
+\usepackage{hyperref}
+\usepackage{clrscode3e}
+\usepackage{pst-grad,multido}
+\usepackage{graphicx,url,etoolbox}
+\usepackage{pifont}
+\usepackage{subfig}
+\usepackage{siunitx}
+\usepackage{mathtools}
+\usepackage{filecontents}
+\usepackage{amsthm}
+\usepackage{yhmath}
+\usepackage{url}
+\usepackage{nicematrix}
+
+%\usepgfplotslibrary{external} 
+
+%\tikzexternalize
+
+\usepackage{pstricks-add}
+\let\clipbox\relax
+\usepackage{pgfplots}
+\usepackage{tikz}
+\usetikzlibrary{quantikz}
+
+\makeatletter
+\tikzset{
+    dot diameter/.store in=\dot@diameter,
+    dot diameter=0.5pt,
+    dot spacing/.store in=\dot@spacing,
+    dot spacing=10pt,
+    dots/.style={
+        line width=\dot@diameter,
+        line cap=round,
+        dash pattern=on 0pt off \dot@spacing
+    }
+}
+\makeatother
+
+
+\usepackage{pifont}
+
+\setlength{\textwidth}{\paperwidth}
+\addtolength{\textwidth}{-2in}
+\calclayout
+
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+\patchcmd{\section}{\scshape}{\bfseries}{}{}
+\makeatletter
+\renewcommand{\@secnumfont}{\bfseries}
+\makeatother
+
+\newcommand{\ud}{\,\mathrm{d}}
+\newcommand{\iu}{{i\mkern1mu}}
+\DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
+
+\DeclareMathOperator{\spn}{span}
+
+\usepackage{stmaryrd}
+\usepackage{braket}
+\usepackage{lipsum}
+
+
+\usepackage{auto-pst-pdf}
+\usepackage{fontawesome5}
+
+
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\theoremstyle{definition}
+\newtheorem*{Lemma}{Lemma}
+\theoremstyle{definition}
+\newtheorem*{Theorem}{Theorem}
+\theoremstyle{definition}
+\newtheorem*{Definition}{Definition}
+
+\addtolength{\voffset}{-3cm}
+\addtolength{\textheight}{4cm}
+
+\makeatletter
+\patchcmd{\@settitle}{center}{flushleft}{}{}
+\patchcmd{\@settitle}{center}{flushleft}{}{}
+\DeclareMathOperator{\Tr}{Tr}
+%\patchcmd{\@setauthors}{\centering}{\raggedright}{}{}
+\patchcmd{\abstract}{3pc}{0pt}{}{} % remove indentation
+\newcommand{\eq}[1]{\begin{IEEEeqnarray*}{rCl}#1\end{IEEEeqnarray*}}
+\makeatother
+
+%\usepackage{etoolbox}
+% \patchcmd{<cmd>}{<search>}{<replace>}{<success>}{<failure>}
+\patchcmd{\section}{\centering}{}{}{}
+
+\title{%
+		Quantum Computation and Quantum Information: \\
+		Quantum Noise and Quantum Operations}
+
+\begin{document}
+\maketitle
+\author{Pierre-Paul TACHER}
+
+This document is published under the \href{https://creativecommons.org/licenses/by-nc-sa/4.0/}{Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license}. \faCreativeCommons\ \faCreativeCommonsBy\ \faCreativeCommonsNc\ \faCreativeCommonsSa
+
+\addtocounter{section}{19}
+
+\section{Circuit model for amplitude damping}
+
+We want to prove that the following circuit models the amplitude damping operation
+
+\begin{center}
+\begin{quantikz}
+\lstick{$\alpha\ket{0}+\beta\ket{1}$}    &  \ctrl{1}           &  \targ{}  &   \qw   & \qw \\
+\lstick{$\ket{0}$} & \gate{R_y(\theta)}  & \ctrl{-1} &  \meter{} & \qw
+\end{quantikz}\end{center}
+
+Recall that
+\begin{IEEEeqnarray*}{rCl}
+R_y(\theta) &= & e^{-\iu \frac{\theta}{2}Y} \\
+& = &\begin{bmatrix}
+					\cos(\frac{\theta}{2}) & -\sin(\frac{\theta}{2})  \\[1em]
+					\sin(\frac{\theta}{2}) &\cos(\frac{\theta}{2})
+\end{bmatrix}
+\end{IEEEeqnarray*}
+
+Initially the two-qubit state is
+\begin{IEEEeqnarray*}{rCl}
+ (\alpha\ket{0}+\beta\ket{1})\ket{0}&= & \alpha\ket{00}+\beta\ket{10}  \\
+\end{IEEEeqnarray*}
+
+After the controlled $R_y$ gate it becomes
+\begin{IEEEeqnarray*}{rCl}
+	\alpha\ket{00}+\beta\ket{1}R_y(\theta)\ket{0} 	& =&  \alpha\ket{00}+\beta\ket{1}(\cos(\frac{\theta}{2})\ket{0}+\sin(\frac{\theta}{2})\ket{1})  \\
+	& =&  \alpha\ket{00}+\beta(\cos(\frac{\theta}{2})\ket{10}+\sin(\frac{\theta}{2})\ket{11})  \\
+\end{IEEEeqnarray*}
+
+After the controlled not gate,
+\begin{IEEEeqnarray*}{rCl}
+ & & \alpha\ket{00}+\beta(\cos(\frac{\theta}{2})\ket{10}+\sin(\frac{\theta}{2})\ket{01})  \\
+\end{IEEEeqnarray*}
+
+This is the effect of amplitude damping, with probability of 1 be switched to 0, or one photon being lost to environment, being $\gamma=\sin^2(\frac{\theta}{2})$.
+
+\section{Amplitude damping of a harmonic oscillator}
+
+The principal system, a harmonic oscillator, interacts with an environment, modeled as another harmonic oscillator, through the Hamiltonian:
+\begin{IEEEeqnarray*}{rCl}
+H & =& \chi(a^\dagger b + b^\dagger a) \\
+\end{IEEEeqnarray*}
+where $a^\dagger,a$ and  $b^\dagger,b$ are the creation, annihilation operators for the principal and environment oscillators, respectively.
+
+The time evolution of the coupled system is governed by the unitary operator:
+\begin{IEEEeqnarray*}{rCl}
+U &= &e^{-\iu H \Delta t}  \\
+\end{IEEEeqnarray*}
+
+\subsection{Operation elements} 
+
+We recall some results for the harmonic oscillator:
+\begin{IEEEeqnarray*}{rCl}
+\forall n \in\mathbb{N},\quad a^\dagger\ket{n} &= &\sqrt{n+1}\ket{n+1}  \\
+\end{IEEEeqnarray*}
+and similarly in the environment space
+\begin{IEEEeqnarray*}{rCl}
+	\forall n \in\mathbb{N},\quad b^\dagger\ket{n}_b &= &\sqrt{n+1}\ket{n+1}_b  \\
+\end{IEEEeqnarray*}
+Here we use the subscript $b$ to differentiate the eigenvectors of the Hermitian operator $bb^\dagger$ which live in the environment space from the eigenvectors of $aa^\dagger$ in the principal space:
+\begin{IEEEeqnarray*}{rCl}
+\forall n\in\mathbb{N},\quad bb^\dagger\ket{n}_b &= &(n+1)\ket{n}_b  \\
+\forall n\in\mathbb{N},\quad aa^\dagger\ket{n} &= &(n+1)\ket{n}  \\
+\end{IEEEeqnarray*}
+Each set of vectors constitute an orthonormal basis:
+\begin{IEEEeqnarray*}{rCl}
+\forall (n,m) \in \mathbb{N}^2,\quad \braket{n|m} &= &  \left\{ \,
+\begin{IEEEeqnarraybox}[][c]{l?s}
+	\IEEEstrut
+	0 & if $n \neq m$, \\
+	1 & if $n = m$.
+	\IEEEstrut
+\end{IEEEeqnarraybox}
+\right.\\
+&= & \delta_{nm} \\
+\end{IEEEeqnarray*}
+
+We also have
+\begin{IEEEeqnarray*}{rCl}
+aa^\dagger -a^\dagger a&= &[a,a^\dagger]  \\
+&= &1 \\
+bb^\dagger -b^\dagger b&= &[b,b^\dagger]  \\
+&= &1 \\
+\end{IEEEeqnarray*}
+where 1 stands for the identity operator.
+
+Each of the operators $a,a^\dagger$ commutes with each of the operators $b,b^\dagger$ since they act on different spaces
+\begin{IEEEeqnarray*}{rCl}
+0 &= &[a^\dagger,b^\dagger]  \\
+&= &[a,b^\dagger]  \\
+&= &[a^\dagger,b]  \\
+&= &[a,b]  \\
+\end{IEEEeqnarray*}
+
+The Baker-Campbell-Hausdorff formula states that, for any operators $A,G$ such that $e^G$ exists,
+\begin{IEEEeqnarray*}{rCl}
+e^{\lambda G}Ae^{-\lambda G} &= &\sum_{n=0}^{+\infty} \frac{\lambda^n}{n!}C_n  \\
+\end{IEEEeqnarray*}
+where the operators $C_n$ are defined recursively by
+\begin{IEEEeqnarray*}{rCl}
+C_0 & =& A \\
+C_1 & = & [G,A] \\
+\forall n\in\mathbb{N},\quad C_{n+1} & = & [G,C_n]
+\end{IEEEeqnarray*}
+
+Let’s compute a simplified expression for the operator $Ua^\dagger U^\dagger$ acting on the product space:
+\begin{IEEEeqnarray*}{rCl}
+	Ua^\dagger U^\dagger&= & e^{-\iu H \Delta t} a^\dagger e^{\iu H \Delta t}  \\\IEEEyesnumber 
+	& = & \sum_{n=0}^{+\infty} \frac{(-\iu \Delta t)^n}{n!}C_n \label{eq:1}
+\end{IEEEeqnarray*}
+The first commutators $C_n$ are
+\begin{IEEEeqnarray*}{rCl}
+C_0 &= &a^\dagger  \\
+C_1 & = & [H,a^\dagger] \\
+& = & [\chi b^\dagger a,a^\dagger]\\
+& = & \chi b^\dagger[ a,a^\dagger]\\
+& = & \chi b^\dagger\\
+C_2 & = & [H,C_1] \\
+& = & [\chi a^\dagger b,\chi b^\dagger ]\\
+& = & \chi^2 a^\dagger[ b,b^\dagger]\\
+& = & \chi^2 a^\dagger\\
+\end{IEEEeqnarray*}
+from which it follows that
+\begin{IEEEeqnarray*}{rCl}
+\forall n\in\mathbb{N},\quad C_{2n} &= \chi^{2n}a^\dagger&  \\
+C_{2n+1} &= \chi^{2n+1}b^\dagger&  \\
+\end{IEEEeqnarray*}
+
+We now rewrite equation~\ref{eq:1}
+\begin{IEEEeqnarray*}{rCl}
+	Ua^\dagger U^\dagger & = & \sum_{n=0}^{+\infty} \frac{(-\iu \Delta t)^n}{n!}C_n \\
+	& = & \sum_{n=0}^{+\infty} \frac{(-\iu \Delta t)^{2n}}{(2n)!}C_{2n}+\sum_{n=0}^{+\infty} \frac{(-\iu \Delta t)^{2n+1}}{(2n+1)!}C_{2n+1} \\
+	& = & a^\dagger\sum_{n=0}^{+\infty} \frac{(-\iu \chi\Delta t)^{2n}}{(2n)!}+b^\dagger\sum_{n=0}^{+\infty} \frac{(-\iu \chi \Delta t)^{2n+1}}{(2n+1)!} \\
+	& = & a^\dagger\sum_{n=0}^{+\infty} (-1)^n\frac{ (\chi\Delta t)^{2n}}{(2n)!}-\iu b^\dagger\sum_{n=0}^{+\infty} (-1)^n\frac{( \chi \Delta t)^{2n+1}}{(2n+1)!} \\
+	& = & \cos(\chi \Delta t)a^\dagger -i\sin(\chi\Delta t)b^\dagger
+\end{IEEEeqnarray*}
+
+Let us now compute the effect of $U$ on $\ket{0}\ket{0}_b=\ket{00}$:
+\begin{IEEEeqnarray*}{rCl}
+U\ket{00} &= &e^{-\iu H \Delta t} \ket{00} \\
+& = &\sum_{n=0}^{+\infty} \frac{(-\iu H\Delta t)^n}{n!} \ket{00}
+\end{IEEEeqnarray*}
+Since $a\ket{0}=0$ and $b\ket{0}_b=0$, we have 
+\begin{IEEEeqnarray*}{rCl}
+H\ket{00} &= & 0 \\
+\end{IEEEeqnarray*}
+and 
+\begin{IEEEeqnarray*}{rCl}
+\forall n\in\mathbb{N}^*,\quad,H^n \ket{00}& =&0  \\
+\end{IEEEeqnarray*}
+from which it follows there is only one non nul term in the previous sum and
+\begin{IEEEeqnarray*}{rCl}
+U\ket{00} &= &\ket{00}  \\
+\end{IEEEeqnarray*}
+
+Let us compute the effect of $U$ on $\ket{1}\ket{0}_b=\ket{10}$:
+\begin{IEEEeqnarray*}{rCl}
+U\ket{10} &= &Ua^\dagger\ket{00}  \\
+&= &Ua^\dagger \underbrace{U^\dagger U}_{=1}\ket{00}  \\
+&= &Ua^\dagger U^\dagger\ket{00}  \\
+&= &( \cos(\chi \Delta t)a^\dagger -i\sin(\chi\Delta t)b^\dagger)\ket{00}  \\
+&= & \cos(\chi \Delta t) \ket{10} -i\sin(\chi\Delta t) \ket{01}  \\
+&= & \cos(\chi \Delta t )\ket{1}\ket{0}_b -i\sin(\chi\Delta t )\ket{0}\ket{1}_b  \\
+\end{IEEEeqnarray*}
+
+Similarly,
+\begin{IEEEeqnarray*}{rCl}
+\sqrt{n!}U\ket{n}\ket{0}_b &= & \sqrt{n!}U\ket{n0} \\
+&= & U(a^\dagger)^n\ket{00} \\
+&= & U(a^\dagger)^nU^\dagger U\ket{00} \\
+&= & (Ua^\dagger U^\dagger )^n\ket{00} \\
+&= & (\cos(\chi \Delta t)a^\dagger -i\sin(\chi\Delta t)b^\dagger )^n\ket{00} \\
+\end{IEEEeqnarray*}
+Since $[a^\dagger,b^\dagger]=0$,
+\begin{IEEEeqnarray*}{rCl}
+	\sqrt{n!}U\ket{n}\ket{0}_b&= &\left(\sum_{k=0}^n\binom{n}{k}\cos^{n-k}(\chi\Delta t)(-\iu)^k\sin^k(\chi\Delta t)(a^\dagger)^{n-k}(b^\dagger)^{k}\right) \ket{00} \\
+	&= &\sum_{k=0}^n\binom{n}{k}\cos^{n-k}(\chi\Delta t)(-\iu)^k\sin^k(\chi\Delta t) \sqrt{(n-k)!}\sqrt{k!}\ket{n-k}\ket{k}_b \\
+\end{IEEEeqnarray*}
+so that
+\begin{IEEEeqnarray*}{rCl}
+U\ket{n0} &= & \sum_{k=0}^n\binom{n}{k}\sqrt{\frac{(n-k)!k!}{n!}}\cos^{n-k}(\chi\Delta t)(-\iu)^k\sin^k(\chi\Delta t) \ket{n-k}\ket{k}_b \\
+&= & \sum_{k=0}^n\sqrt{\binom{n}{k}}\cos^{n-k}(\chi\Delta t)(-\iu)^k\sin^k(\chi\Delta t) \ket{n-k}\ket{k}_b \\
+\end{IEEEeqnarray*}
+We can think of the number
+\begin{IEEEeqnarray*}{rCl}
+ & &\binom{n}{k}\cos^{2(n-k)}(\chi\Delta t)\sin^{2k}(\chi\Delta t)   \\
+\end{IEEEeqnarray*}
+as the probability of losing $k$ quanta of energy to the environment.
+
+Let $E_m=\bra{m}_b U \ket{0}_b,\quad m\in\mathbb{N}$ the operation elements of $U$. They are operators acting on the principal space. We can compute the action of $E_m$ on $\ket{n}$ (i.e. compute the nth column of the matrix of $E_m$) from the previous formula:
+\begin{IEEEeqnarray*}{rCl}
+E_m\ket{n} & =& (\bra{m}_b U \ket{0}_b)\ket{n} \\
+& =& \bra{m}_b (U \ket{n}\ket{0}_b) \\
+& =& \bra{m}_b U \ket{n0}\\
+\end{IEEEeqnarray*}
+First it is clear that if $n<m$, $E_m\ket{n}=0$. Then if $n\geqslant m$,
+\begin{IEEEeqnarray*}{rCl}
+	E_m\ket{n} & =&\bra{m}_b  \sum_{k=0}^n\sqrt{\binom{n}{k}}\cos^{n-k}(\chi\Delta t)(-\iu)^k\sin^k(\chi\Delta t) \ket{n-k}\ket{k}_b \\
+	& =& \sum_{k=0}^n\sqrt{\binom{n}{k}}\cos^{n-k}(\chi\Delta t)(-\iu)^k\sin^k(\chi\Delta t) \ket{n-k}\underbrace{\braket{m|k}_b}_{=\delta_{mk}} \\
+	& =& (-\iu)^m\sin^m(\chi\Delta t) \sqrt{\binom{n}{m}}\cos^{n-m}(\chi\Delta t)\ket{n-m} \\
+\end{IEEEeqnarray*}
+This shows that the matrix of $E_m$ has non nul elements only on the mth superior diagonal. $E_m$ corresponds to the physical process of losing $m$ quanta of energy to the environment. 
+
+We can also reconstruct the full formula for $E_m$ using braket calculus:
+\begin{IEEEeqnarray*}{rCl}
+E_m & =& E_m\underbrace{\sum_{n=0}^{+\infty}\ket{n}\bra{n}}_{=1} \\
+& =& \sum_{n=0}^{+\infty}E_m\ket{n}\bra{n} \\
+& =& \sum_{n=m}^{+\infty}E_m\ket{n}\bra{n} \\
+& =&(-\iu)^m\sin^m(\chi\Delta t)  \sum_{n=m}^{+\infty}\sqrt{\binom{n}{m}}\cos^{n-m}(\chi\Delta t)\ket{n-m}\bra{n} \\
+\end{IEEEeqnarray*}
+Note that the sole effect of factor $(-\iu)^m$  is to add a global phase so it may as well be omitted.
+
+\setcounter{MaxMatrixCols}{20}
+\NiceMatrixOptions{cell-space-limits = 1pt}
+\pgfdeclarelayer{bg}
+\pgfsetlayers{bg,main}
+\begin{IEEEeqnarray*}{rCl}
+E_m %&=&P\begin{bmatrix}G(\lambda) &0 &\ldots & 0& 0 & \ldots&\ldots&0\\
+   %  0 & G(\lambda)  & \ldots & 0&\vdots & &&\vdots\\
+   %\vdots & \vdots & \ddots & \vdots&\vdots & &&\vdots\\
+   %0 & 0 & \ldots &   G(\lambda) &0&\ldots &\ldots &0\\
+   %0 & \dots & \ldots &  0&F(\lambda_1) &0 & \dots&0 \\
+   %\vdots &  &  & \vdots &0 & F(\lambda_2)& &\vdots\\
+   %\vdots &  &  & \vdots & \vdots& &\ddots &\vdots\\
+   %0 & \ldots & \ldots &  0&0 & \dots& \ldots&F(\lambda_{n-d})\\
+   %\end{bmatrix} \\
+   %&=&P\begin{bNiceMatrix}[nullify-dots]
+   %  G(\lambda) &\text{\kern -0.71667em}0\hphantom{\text{a}} &\Ldots & & 0        & 0            & \Ldots& & & 0      \\
+   %  0          & \text{\kern -0.71667em}G(\lambda)          &       & &          &\Vdots        &       & & & \Vdots \\
+   %\Vdots       & \Ddots                                     & \Ddots& &\Vdots    &\Vdots        &       & & &\Vdots  \\
+   %\Vdots       &                                            & \Ddots& &\Vdots    &\Vdots        &       & & &\Vdots  \\
+   %0            & \Ldots                                     &       &0&G(\lambda)& 0            &\Ldots & & &0        \\
+   %0            &                                            & \Ldots& &0         &F(\lambda_1)  &\text{\kern -0.71667em}0\hphantom{\text{a}}  & \Ldots&&0 \\
+   %\Vdots       &                                            &       & &\Vdots    &0             &\text{\kern -0.71667em} F(\lambda_2)         &       &&\Vdots\\
+   %\Vdots       &                                            &       & &\Vdots    &\Vdots        &\Ddots                                       &\Ddots &&\Vdots\\
+   %\Vdots       &                                            &       & &\Vdots    &\Vdots        &                                             &       &&\Vdots\\
+   %0            & \Ldots                                     & \Ldots& &  0       &0             & \Ldots                                      &       &0&F(\lambda_{n-d})\\\end{bNiceMatrix}\\
+   %\fi
+   & = &\sin^m(\chi\Delta t)\begin{bNiceMatrix}[nullify-dots,first-row,last-col]
+	&                                            &       & &    &        &       & m& &  &&n&&&&\\
+	 & & & &         &             & &1 &  &       &\Block[c]{3-3}<\LARGE>{\boldsymbol{0}} &\\
+	           & \Block[c]{14-10}<\LARGE>{\boldsymbol{0}}          &       & &          &        &       & &\text{\kern -0.71667em}\sqrt{\binom{m+1}{m}}\cos(\chi\Delta t) &  &&&&&\\
+          &                                      &       & &    &        &       & & &\text{\kern -0.91667em}\sqrt{\binom{m+2}{m}} \cos^2(\chi\Delta t) &&&&&\\
+          &                                            &       & &    &        &       & & & && &&&\\
+               &                                    &       &&&             & & & &        &&\text{\kern -0.91667em}\sqrt{\binom{n}{m}}\cos^{n-m}(\chi\Delta t)&&&&n-m\\
+               &                                            & & &         &  &  &       && &&&&&\\
+         &                                            &       & &    &             &                 &       &&&&&&\text{\kern -0.91667em}\vphantom{\sqrt{\binom{n}{m}}\cos^{n-m}(\chi\Delta t)}\NotEmpty&\\
+          &                                            &       & &    &        &                                                &       &&&&&&&\NotEmpty\\
+          &                                            &       & &    &        &                                                      &       &&&&&&&\\
+		  &                                            &       & &    &        &       & & &  &&&&&\\
+		  &                                            &       & &    &        &       & & &  &&&&&\\
+		  &                                            &       & &    &        &       & & &  &&&&&\\
+		  &                                            &       & &    &        &       & & &  &&&&&\\
+		  &                                            &       & &    &        &       & & &  &&&&&\\
+               &                                      & & &         &             &             &&                                   &       &&&&&
+   \CodeAfter
+   \begin{tikzpicture}[]
+	
+	%\draw (1,1) -- (2,1)--(0,0);
+   %\draw (2-2) circle (2mm);
+   %\draw (5-5) circle (2mm);
+   %\draw (2-2) -- (5-5);
+   %\draw (-5,-5) -- (5,5);
+   \draw[dot diameter=1pt, dot spacing=5pt, dots] (-7,1.97) -- (-5.1,1.27);
+   \draw[dot diameter=1pt, dot spacing=5pt, dots] (-4,0.87) -- (-1.2,-0.16);
+   
+   %\draw[dot diameter=1pt, dot spacing=5pt, dots] (2-2) -- (5-5.north);
+   %\draw[dot diameter=1pt, dot spacing=5pt, dots] (3-10.south) -- (5-12.west);
+   %\draw[dot diameter=1pt, dot spacing=5pt, dots] (5-12.south) -- (7-14.west);
+   %\draw[dot diameter=1pt, dot spacing=5pt, dots] (1-2.south) -- (1-5.south west);
+   %\draw[dot diameter=1pt, dot spacing=5pt, dots] (6-7.south) -- (6-10.south west);
+   %\line{2-2}{5-5}.north east;
+   %\line{2-2}{1-5}.north;
+
+   \begin{pgfonlayer}{bg}
+	%\draw (1-8) -- (8-15); 
+   \end{pgfonlayer}
+   \end{tikzpicture}\end{bNiceMatrix}
+\end{IEEEeqnarray*}
+
+\subsection{Trace-preserving property}
+
+Matrix calculus or braket calculus show that the matrices $E_m^\dagger E_m$ are diagonals, with the first $m$ elements are 0:
+\begin{IEEEeqnarray*}{rCl}
+	E_m^\dagger E_m & =&  \sin^{2m}(\chi\Delta t)\left(  \sum_{n=m}^{+\infty}\sqrt{\binom{n}{m}}\cos^{n-m}(\chi\Delta t)\ket{n}\bra{n-m}\right)\left(  \sum_{l=m}^{+\infty}\sqrt{\binom{l}{m}}\cos^{l-m}(\chi\Delta t)\ket{l-m}\bra{l}\right)\\
+	& =&  \sin^{2m}(\chi\Delta t) \sum_{n=m}^{+\infty} \sum_{l=m}^{+\infty}\sqrt{\binom{n}{m}}\sqrt{\binom{l}{m}}\cos^{n-m}(\chi\Delta t)\cos^{l-m}(\chi\Delta t)\ket{n}\underbrace{\braket{n-m|l-m}}_{=\delta_{nl}}\bra{l}\\
+	& =&  \sin^{2m}(\chi\Delta t) \sum_{n=m}^{+\infty} \binom{n}{m}\cos^{2(n-m)}(\chi\Delta t)\ket{n}\bra{n}
+\end{IEEEeqnarray*}
+
+\setcounter{MaxMatrixCols}{20}
+\NiceMatrixOptions{cell-space-limits = 2pt}
+\pgfdeclarelayer{bg}
+\pgfsetlayers{bg,main}
+\begin{IEEEeqnarray*}{rCl}
+E_m^\dagger E_m %&=&P\begin{bmatrix}G(\lambda) &0 &\ldots & 0& 0 & \ldots&\ldots&0\\
+   %  0 & G(\lambda)  & \ldots & 0&\vdots & &&\vdots\\
+   %\vdots & \vdots & \ddots & \vdots&\vdots & &&\vdots\\
+   %0 & 0 & \ldots &   G(\lambda) &0&\ldots &\ldots &0\\
+   %0 & \dots & \ldots &  0&F(\lambda_1) &0 & \dots&0 \\
+   %\vdots &  &  & \vdots &0 & F(\lambda_2)& &\vdots\\
+   %\vdots &  &  & \vdots & \vdots& &\ddots &\vdots\\
+   %0 & \ldots & \ldots &  0&0 & \dots& \ldots&F(\lambda_{n-d})\\
+   %\end{bmatrix} \\
+   %&=&P\begin{bNiceMatrix}[nullify-dots]
+   %  G(\lambda) &\text{\kern -0.71667em}0\hphantom{\text{a}} &\Ldots & & 0        & 0            & \Ldots& & & 0      \\
+   %  0          & \text{\kern -0.71667em}G(\lambda)          &       & &          &\Vdots        &       & & & \Vdots \\
+   %\Vdots       & \Ddots                                     & \Ddots& &\Vdots    &\Vdots        &       & & &\Vdots  \\
+   %\Vdots       &                                            & \Ddots& &\Vdots    &\Vdots        &       & & &\Vdots  \\
+   %0            & \Ldots                                     &       &0&G(\lambda)& 0            &\Ldots & & &0        \\
+   %0            &                                            & \Ldots& &0         &F(\lambda_1)  &\text{\kern -0.71667em}0\hphantom{\text{a}}  & \Ldots&&0 \\
+   %\Vdots       &                                            &       & &\Vdots    &0             &\text{\kern -0.71667em} F(\lambda_2)         &       &&\Vdots\\
+   %\Vdots       &                                            &       & &\Vdots    &\Vdots        &\Ddots                                       &\Ddots &&\Vdots\\
+   %\Vdots       &                                            &       & &\Vdots    &\Vdots        &                                             &       &&\Vdots\\
+   %0            & \Ldots                                     & \Ldots& &  0       &0             & \Ldots                                      &       &0&F(\lambda_{n-d})\\\end{bNiceMatrix}\\
+   %\fi
+   & = &\sin^{2m}(\chi\Delta t)\begin{bNiceMatrix}[nullify-dots,first-row,last-col]
+	&                                            &       & &  m  &        &       & & n&  &&&&&&\\
+	\NotEmpty\Block[fill=lightgray,rounded-corners]{4-4}<\LARGE>{\boldsymbol{0}} & & & &         &             & & &  &       & &\\
+	           & \hphantom{\cos(\Delta )}         &       & &          &        &       & & & \Block[c]{3-3}<\LARGE>{\boldsymbol{0}} &&&&&\\
+          &                                      &     \hphantom{\cos(\Delta )}   & &    &        &       & & & &&&&&\\
+          &                                            &       &\NotEmpty&    &        &       & & & && &&&\\
+               &                                    &       &&1&             & & & &        &&&&&&m\\
+               &                                            & & &         & \text{\kern -0.71667em}\binom{m+1}{m}\cos^2(\chi\Delta t) &  &       && &&&&&\\
+         &                                            &       & &    &             &    \text{\kern -3.9667em}\binom{m+1}{m}\cos^{4}(\chi\Delta t)              &       &&&&&&&\\
+          &                                            &       & &    &        &                                                &       &&&&&&&\NotEmpty\\
+          &                                            &       & &    &        &                                                      &       &&&&&&&\\
+		  &                                            &       & &    &        &       & & & \text{\kern -3.9667em}\binom{n}{m}\cos^{2(n-m)}(\chi\Delta t)  &&&&&&n\\
+		  &                                            &       & &    &        &       & & &  &&&&&\\
+		  &    \Block[c]{3-3}<\LARGE>{\boldsymbol{0}}                                        &       & &    &        &       & & &  &&&&&\\
+		  &                                            &       & &    &        &       & & &  &&&&&\\
+		  &                                            &       & &    &        &       & & &  &&&&&\\
+               &                                      & & &         &             &             &&                                   &       &&&&&
+   \CodeAfter
+   \begin{tikzpicture}[]	
+	%\draw (1,1) -- (2,1)--(0,0);
+   %\draw (2-2) circle (2mm);
+   %\draw (5-5) circle (2mm);
+   %\draw (2-2) -- (5-5);
+   %\draw (-5,-5) -- (5,5);
+   \draw[dot diameter=1pt, dot spacing=5pt, dots] (-6.5,0.34) -- (-4.5,-0.69);
+   \draw[dot diameter=1pt, dot spacing=5pt, dots] (-4,-0.95) -- (-0.75,-2.6);
+   %\draw[dot diameter=1pt, dot spacing=5pt, dots] (-4,0.87) -- (-1.2,-0.16);
+   
+   %\draw[dot diameter=1pt, dot spacing=5pt, dots] (1-1) -- (4-4);
+   %\draw[dot diameter=1pt, dot spacing=5pt, dots] (3-10.south) -- (5-12.west);
+   %\draw[dot diameter=1pt, dot spacing=5pt, dots] (5-12.south) -- (7-14.west);
+   %\draw[dot diameter=1pt, dot spacing=5pt, dots] (1-2.south) -- (1-5.south west);
+   %\draw[dot diameter=1pt, dot spacing=5pt, dots] (6-7.south) -- (6-10.south west);
+   %\line{2-2}{5-5}.north east;
+   %\line{2-2}{1-5}.north;
+
+   \begin{pgfonlayer}{bg}
+	%\draw (1-8) -- (8-15); 
+   \end{pgfonlayer}
+   \end{tikzpicture}\end{bNiceMatrix}
+\end{IEEEeqnarray*}
+
+It follows that the operator $\sum_{m=0}^{+\infty}E_m^\dagger E_m$ is also diagonal, and diagonal elements are
+\begin{IEEEeqnarray*}{rCl}
+\braket{n|\sum_{m=0}^{+\infty}E_m^\dagger E_m|n} &= &\sum_{m=0}^{+\infty} \braket{n|E_m^\dagger E_m|n} \\
+&= &\sum_{m=0}^{n} \braket{n|E_m^\dagger E_m|n} \\
+&= &\sum_{m=0}^{n} \binom{n}{m}\sin^{2m}(\chi\Delta t)\cos^{2(n-m)}(\chi \Delta t) \\
+&= &(\sin^{2}(\chi\Delta t)+\cos^{2}(\chi \Delta t))^n \\
+&= &1 \\
+\end{IEEEeqnarray*}
+i.e.\ $\sum_{m=0}^{+\infty}E_m^\dagger E_m=1$ and the quantum operation is trace-preserving.
+
+\section{Amplitude damping of a single qubit density matrix}
+
+Let
+\begin{IEEEeqnarray*}{rCl}
+\rho &= & \begin{bmatrix} a & b \\
+	b^* & c 
+\end{bmatrix}
+\end{IEEEeqnarray*}
+
+The amplitude damping operation is defined by
+\begin{IEEEeqnarray*}{rCl}
+\varepsilon_{AD}(\rho) &= & E_0\rho E_0^\dagger + E_1\rho E_1^\dagger  \\
+\end{IEEEeqnarray*}
+where
+\begin{IEEEeqnarray*}{rCl}
+E_0	 &= &\begin{bmatrix}
+	1 & 0   \\
+	0 & \sqrt{1-\gamma}
+\end{bmatrix} \\\IEEEyesnumber
+E_1 & = & \begin{bmatrix}
+	0 & \sqrt{\gamma}   \\
+	0 & 0
+\end{bmatrix} \label{eq:3}\\
+\end{IEEEeqnarray*}
+
+Straightforward matrix calculus show that
+\begin{IEEEeqnarray*}{rCl}
+	E_0\rho E_0^\dagger  & = &  \begin{bmatrix}
+		a & b\sqrt{1-\gamma}   \\
+		b^*\sqrt{1-\gamma} & c(1-\gamma)
+	\end{bmatrix} \\
+\end{IEEEeqnarray*}
+and
+\begin{IEEEeqnarray*}{rCl}
+	E_1\rho E_1^\dagger  & = &  \begin{bmatrix}
+		c\gamma & 0   \\
+		0 & 0
+	\end{bmatrix} \\
+	& = &  \begin{bmatrix}
+		(1-a)\gamma & 0   \\
+		0 & 0
+	\end{bmatrix} \\
+\end{IEEEeqnarray*}
+ because $1=\Tr \rho=a+c$.
+
+Thus we have
+\begin{IEEEeqnarray*}{rCl}\IEEEyesnumber
+\varepsilon_{AD}(\rho) &= &  \begin{bmatrix}
+	a + (1-a)\gamma & b\sqrt{1-\gamma}   \\
+	b^*\sqrt{1-\gamma} & c(1-\gamma) \label{eq:5}
+\end{bmatrix} \\
+&= &  \begin{bmatrix}
+	1 - (1-a)(1-\gamma) & b\sqrt{1-\gamma}   \\
+	b^*\sqrt{1-\gamma} & c(1-\gamma)
+\end{bmatrix} \\
+\end{IEEEeqnarray*}
+
+\section{Amplitude damping of dual-rail qubits}
+
+Let 
+\begin{IEEEeqnarray*}{rCl}
+\ket{\psi} &= & a\ket{01} + b\ket{10} \\
+\end{IEEEeqnarray*}
+
+Applying $\varepsilon_{AD}\otimes \varepsilon_{AD}$ to $\rho=\ket{\psi}\bra{\psi}$ is equivalent to applying unitary $B\otimes B$ to $\ket{\psi}$, where $B=e^{\theta(a^\dagger b-ab^\dagger)}$. Let's do this by making explicit the 2 environment qubits initially set to 0, dnoted by subscript $b$:
+\begin{IEEEeqnarray*}{rCl}
+	\ket{\psi} &= & a\ket{01}\ket{00}_b + b\ket{10}\ket{00}_b \\
+\end{IEEEeqnarray*}
+\begin{IEEEeqnarray*}{rCl}
+	B\otimes B	\ket{\psi} &= & a\ket{0}\ket{0}_b(B\ket{1}\ket{0}_b) + b(B\ket{1}\ket{0}_b)\ket{0}\ket{0}_b \\
+	&= & a\ket{0}\ket{0}_b(\cos(\theta)\ket{1}\ket{0}_b+\sin(\theta)\ket{0}\ket{1}_b) + b(\cos(\theta)\ket{1}\ket{0}_b+\sin(\theta)\ket{0}\ket{1}_b)\ket{0}\ket{0}_b \\
+	&= & a\cos(\theta)\ket{0}\ket{0}_b\ket{1}\ket{0}_b+a\sin(\theta)\ket{0}\ket{0}_b\ket{0}\ket{1}_b + b\cos(\theta)\ket{1}\ket{0}_b\ket{0}\ket{0}_b+b\sin(\theta)\ket{0}\ket{1}_b\ket{0}\ket{0}_b \\
+\end{IEEEeqnarray*}
+
+We reorder the qubits to put the environments qubits at the end since we will trace them out:
+\begin{IEEEeqnarray*}{rCl}
+	\IEEEyesnumber B\otimes B	\ket{\psi} &= & a\cos(\theta)\ket{01}\ket{00}_b+a\sin(\theta)\ket{00}\ket{01}_b + b\cos(\theta)\ket{10}\ket{00}_b+b\sin(\theta)\ket{00}\ket{10}_b \label{eq:2}\\
+	& = & \ket{\varphi}
+\end{IEEEeqnarray*}
+
+Now we have to find the dual vector $\bra{\varphi}$ of this state. We can recall the not so trivial following facts related to product space:
+Let $\{\ket{a_i}\}$,$\{\ket{b_j}\}$ be basis of two Hilbert spaces $A$ and $B$.
+
+The dual of $\ket{a_ib_j}=\ket{a_i}\otimes\ket{b_j}$ is 
+\begin{IEEEeqnarray*}{rCl}
+	\bra{a_i}\otimes\bra{b_j} & =&  \bra{a_ib_j} \\
+\end{IEEEeqnarray*}
+so that
+\begin{IEEEeqnarray*}{rCl}
+\bra{\varphi} & =&   a^*\cos(\theta)\bra{01}\bra{00}_b+a^*\sin(\theta)\bra{00}\bra{01}_b + b^*\cos(\theta)\bra{10}\bra{00}_b+b^*\sin(\theta)\bra{00}\bra{10}_b\\
+\end{IEEEeqnarray*}
+
+We have also
+\begin{IEEEeqnarray*}{rCl}
+	 \ket{a_kb_l} \bra{a_ib_j} & = & \ket{a_k}\bra{a_i}\otimes \ket{b_l}\bra{b_j} \\
+\end{IEEEeqnarray*}
+
+We could then use equation~\ref{eq:2} to compute the density $\ket{\varphi}\bra{\varphi}$, but this would be a messy sum with 16 terms.
+
+Since we will trace out the environment, we recall the partial trace formula:
+\begin{IEEEeqnarray*}{rCl}
+\Tr_B (\ket{a_k}\bra{a_i}\otimes \ket{b_l}\bra{b_j})  &= & \ket{a_k}\bra{a_i}\Tr(\ket{b_l}\bra{b_j}) \\
+&= & \ket{a_k}\bra{a_i}\braket{b_l | b_j} \\
+\end{IEEEeqnarray*}
+
+Since $\{\ket{00}_b,\ket{01}_b,\ket{10}_b,\ket{11}_b\}$ is an orthonormal basis, there are only 6 out of 16 terms left after the partial trace operation:
+\begin{IEEEeqnarray*}{rCl}
+\Tr_b(\ket{\varphi}\bra{\varphi}) & =& \abs{a}^2\cos^2(\theta)\ket{01}\bra{01} +  ab^*\cos^2(\theta)\ket{01}\bra{10} + \abs{a}^2\sin^2(\theta)\ket{00}\bra{00} \\
+&&+\:  \abs{b}^2\cos^2(\theta)\ket{10}\bra{10} + ba^*\cos^2(\theta)\ket{10}\bra{01} +  \abs{b}^2\sin^2(\theta)\ket{00}\bra{00} \\
+& =& \abs{a}^2(1-\gamma)\ket{01}\bra{01} +  ab^*(1-\gamma)\ket{01}\bra{10} + \abs{a}^2\gamma\ket{00}\bra{00} \\
+&&+\:  \abs{b}^2(1-\gamma)\ket{10}\bra{10} + ba^*(1-\gamma)\ket{10}\bra{01} +  \abs{b}^2\gamma\ket{00}\bra{00} \\
+& = & (\underbrace{\abs{a}^2+\abs{b}^2}_{=1})\gamma\ket{00}\bra{00}+(1-\gamma)\left(\abs{a}^2\ket{01}\bra{01} +  ab^*\ket{01}\bra{10} +   \abs{b}^2\ket{10}\bra{10} + ba^*\ket{10}\bra{01}\right)\\
+& = &\gamma\begin{bmatrix}
+	1 & 0 &0&0\\
+	0&0&0&0\\
+	0&0&0&0\\
+	0&0&0&0
+\end{bmatrix}+(1-\gamma)\begin{bmatrix}
+	0 & 0 &0&0\\
+	0& \abs{a}^2&ab^*&0\\
+	0&a^*b&\abs{b}^2&0\\
+	0&0&0&0
+\end{bmatrix}\\
+& = &  \gamma\begin{bmatrix}
+	1 & 0 &0&0\\
+	0&0&0&0\\
+	0&0&0&0\\
+	0&0&0&0
+\end{bmatrix}+(1-\gamma)\rho
+\end{IEEEeqnarray*}
+
+It is a mixed state: 
+\begin{itemize}
+	\renewcommand\labelitemi{--}
+	\item with probability $\gamma$, the state is projected to $\ket{00}$, orthogonal to $\ket{\psi}$.
+	\item with probability $1-\gamma$, state is unchanged.
+\end{itemize}
+
+Since $\ket{00}$ is orthogonal to $\ket{\psi}$, one can detect amplitude damping errors with measurement operators:
+\begin{IEEEeqnarray*}{rCl}
+M_0 & = & \ket{00}\bra{00}\qquad\text{orthogonal projector on }\spn\{\ket{00}\} \\
+M_1 & = & \ket{01}\bra{01}+\ket{10}\bra{10}+\ket{11}\bra{11}\qquad\text{orthogonal projector on }\spn\{\ket{01},\ket{10}\,\ket{11}\} \\
+\end{IEEEeqnarray*}
+
+\begin{itemize}
+	\renewcommand\labelitemi{--}
+	\item If the state decayed to $\ket{00}$, then with probability $1$ the result of the measurement will be $\ket{00}$.
+	\item Otherwise, with probability $1$ the result of the measurement will be the original $\ket{\psi}$.
+\end{itemize}
+
+It can be easily checked that the quantum operation can be described with 3 operators:
+\begin{IEEEeqnarray*}{rCl}
+E_0^{dr} &= & \sqrt{1-\gamma}I \\
+E_1^{dr} & =& \sqrt{\gamma}\ket{00}\bra{01} \\
+& = & \sqrt{\gamma}\begin{bmatrix}
+	 0& 1 &0&0\\
+	0&0&0&0\\
+	0&0&0&0\\
+	0&0&0&0
+\end{bmatrix} \\
+E_2^{dr} & =& \sqrt{\gamma}\ket{00}\bra{10} \\
+& = & \sqrt{\gamma}\begin{bmatrix}
+	0& 0 &1&0\\
+   0&0&0&0\\
+   0&0&0&0\\
+   0&0&0&0
+\end{bmatrix} \\
+\end{IEEEeqnarray*}
+ It is interesting to see that these operators are the restriction to $\spn\{\ket{01},\ket{10}\}$ of the operators
+ \begin{IEEEeqnarray*}{rCl}
+ E_0\otimes E_0 & &  \\
+ E_0\otimes E_1 & &  \\
+ E_1\otimes E_0 & &  \\
+ E_1\otimes E_1 & &  \\
+ \end{IEEEeqnarray*}
+where $E_0,E_1$ are the operators of amplitude damping for single qubit, defined in~\ref{eq:3}.
+
+\section{Spontaneous emission is amplitude damping}
+\iffalse
+We consider a system formed by a two-level atom and a cavity confined electric field. The Hamiltonian is
+\begin{IEEEeqnarray*}{rCl}
+H &= &  g(a\sigma_-+a^\dagger\sigma_+)\\
+\end{IEEEeqnarray*}
+where $g$ is some constant which describes the strength of the interaction, $a^\dagger,a$ are respectively the creation,annihilation operators~\footnote{It seems to me the book mixes up $a^\dagger$ with $a$ in several places.} on the single mode field, and $\sigma_\pm$ are operators acting on the two-level atom, namely:
+\begin{IEEEeqnarray*}{rCl}
+\sigma_+ & =& \frac{1}{2}(X+\iu Y) \\
+& = &\begin{bmatrix}
+       0 & 1\\
+       0 & 0
+    \end{bmatrix}\\
+\sigma_- & =& \frac{1}{2}(X-\iu Y) \\
+& = &\begin{bmatrix}
+    0 & 0\\
+    1 & 0
+ \end{bmatrix}\\
+\end{IEEEeqnarray*}
+
+
+We recall
+\begin{IEEEeqnarray*}{rCl}
+\forall n \in\mathbb{N},\quad a^\dagger\ket{n} &= &\sqrt{n+1}\ket{n+1}  \\
+a\ket{n+1} &= &\sqrt{n+1}\ket{n}  \\
+a\ket{0} & = &0
+\end{IEEEeqnarray*}
+\fi
+
+From equation (7.77) in the book, the time evolution of the single atom interacting with single photon is governed by unitary
+\begin{IEEEeqnarray*}{rCl}
+U &= & e^{-\iu \delta t}\ket{00}\bra{00} + (\cos(\Omega t)+\iu \frac{\delta}{\Omega} \sin(\Omega t))\ket{01}\bra{01}\\
+&& \qquad +\>  (\cos(\Omega t)-\iu \frac{\delta}{\Omega} \sin(\Omega t))\ket{10}\bra{10} -\iu \frac{g}{\Omega} \sin(\Omega t)(\ket{01}\bra{10}+\ket{10}\bra{01} ) \\
+\end{IEEEeqnarray*}
+
+the left label corresponds to the electric field, the right label corresponds to the atom. The derivation of this formula from the Hamiltonian can be found in appendix~\ref{unitary}.
+
+The {\em Rabi frequency} is 
+\begin{IEEEeqnarray*}{rCl}
+\Omega &= &\sqrt{g^2+\delta^2}  \\
+\end{IEEEeqnarray*}
+
+If we set $\delta=0$ and if $g>0$, then $\Omega=g$ and
+\begin{IEEEeqnarray*}{rCl}
+U & =& \ket{00}\bra{00} + \cos(\Omega t)(\ket{01}\bra{01}+\ket{10}\bra{10} ) \\
+&& \qquad -\>   \iu  \sin(\Omega t)(\ket{01}\bra{10}+\ket{10}\bra{01} ) \\
+\end{IEEEeqnarray*}
+
+Let us apply $U$ to 
+\begin{IEEEeqnarray*}{rCl}
+\ket{\psi} & = &\ket{0}(a\ket{0}+b\ket{1}) \\
+& = &a\ket{00}+b\ket{01}) \\
+\end{IEEEeqnarray*}
+
+We find
+\begin{IEEEeqnarray*}{rCl}
+ U\ket{\psi} & =& a\ket{00} + b(\cos(\Omega t)\ket{01}-\iu \sin(\Omega t)\ket{10})  \\\IEEEyesnumber
+ & = & \ket{\varphi} \label{eq:4}
+\end{IEEEeqnarray*}
+
+
+Now we have to find the dual vector $\bra{\varphi}$ of this state. We can recall the not so trivial following facts related to product space:
+Let $\{\ket{a_i}\}$,$\{\ket{b_j}\}$ be basis of two Hilbert spaces $A$ and $B$.
+
+The dual of $\ket{a_ib_j}=\ket{a_i}\otimes\ket{b_j}$ is 
+\begin{IEEEeqnarray*}{rCl}
+	\bra{a_i}\otimes\bra{b_j} & =&  \bra{a_ib_j} \\
+\end{IEEEeqnarray*}
+so that
+\begin{IEEEeqnarray*}{rCl}
+\bra{\varphi} & =&   a\bra{00} + b^*(\cos(\Omega t)\bra{01}+\iu \sin(\Omega t)\bra{10})  \\
+\end{IEEEeqnarray*}
+
+We have also
+\begin{IEEEeqnarray*}{rCl}
+	 \ket{a_kb_l} \bra{a_ib_j} & = & \ket{a_k}\bra{a_i}\otimes \ket{b_l}\bra{b_j} \\
+\end{IEEEeqnarray*}
+
+We could then use equation~\ref{eq:4} to compute the density $\ket{\varphi}\bra{\varphi}$, but this would be a ugly sum with 9 terms.
+
+Since we will trace out the photon space, we recall the partial trace formula:
+\begin{IEEEeqnarray*}{rCl}
+\Tr_B (\ket{a_k}\bra{a_i}\otimes \ket{b_l}\bra{b_j})  &= & \ket{a_k}\bra{a_i}\Tr(\ket{b_l}\bra{b_j}) \\
+&= & \ket{a_k}\bra{a_i}\braket{b_l | b_j} \\
+\end{IEEEeqnarray*}
+
+Since $\{\ket{0},\ket{1}\}$ is an orthonormal basis of the state space $A$ of the photon, there are only 5 out of 9 terms left after the partial trace operation over the photon (those where the bit for the photon is the same in the ket and in the bra):
+
+\begin{IEEEeqnarray*}{rCl}
+\Tr_A (\ket{\varphi}\bra{\varphi}) &= & (\abs{a}^2+\abs{b}^2\sin^2(\Omega t))\ket{0}\bra{0}  + ab^*\cos(\Omega t)\ket{0}\bra{1} \\
+&& \qquad +\> a^*b\cos(\Omega t)\ket{1}\bra{0} +\abs{b}^2\cos^2(\Omega t)\\
+ &= &  \begin{bmatrix}
+	\abs{a}^2 + (1-\abs{a}^2)\gamma & ab^*\sqrt{1-\gamma}   \\[1em]
+	a^*b\sqrt{1-\gamma} & \abs{b}^2(1-\gamma)
+\end{bmatrix} 
+\end{IEEEeqnarray*}
+with $\gamma=\sin^2(\Omega t)$. Now compare with equation~\ref{eq:5} and recall that
+\begin{IEEEeqnarray*}{rCl}
+\rho & =&\begin{bmatrix}\abs{a}^2 & ab^*\\[1em]
+a^*b & \abs{b}^2\end{bmatrix}  
+\end{IEEEeqnarray*}
+to see that this is indeed the amplitude damping operation.
+
+\section{} We consider the density operator
+\begin{IEEEeqnarray*}{rCl}
+\rho &= &\begin{bmatrix}p & 0\\
+   0 & 1-p
+\end{bmatrix}  \\
+\end{IEEEeqnarray*}
+ The qubit is in state $\ket{0}$ with probability $p_0=p$ and in state $\ket{1}$ with probability $p_1=1-p$.
+
+ Let us compute $T$ as a function of $E_0$, $E_1$ and $p$:
+\begin{IEEEeqnarray*}{rrCl}
+&\mathcal{Z} =  \frac{e^{-\frac{E_0}{k_BT}}}{p}& = & e^{-\frac{E_0}{k_BT}}+e^{-\frac{E_1}{k_BT}} \\
+\Leftrightarrow&\frac{1}{p} & = & 1 + e^{-\frac{E_1-E_0}{k_BT}} \\
+\Leftrightarrow&\frac{1}{p}-1 & = &  e^{-\frac{E_1-E_0}{k_BT}} \\
+\Leftrightarrow&\frac{1}{p}-1 & = &  e^{-\frac{E_1-E_0}{k_BT}} \\
+\Leftrightarrow& -\frac{E_1-E_0}{k_BT} & = &  \ln(\frac{1-p}{p}) \\
+\Leftrightarrow& T & = & -\frac{1}{k_B} \frac{E_1-E_0}{\ln(\frac{1-p}{p}) }\\
+\end{IEEEeqnarray*}
+
+Assuming $E_1>E_0$, \begin{itemize}
+	\renewcommand\labelitemi{--}
+	\item the regular amplitude damping case corresponds to $T\to 0^+$, $p=1$.
+	\item When $T\to +\infty$, $p \to \frac{1}{2} $.
+\end{itemize}
+
+
+\clearpage
+\appendix
+\section{Derivation of the formula of unitary evolution for atom photon interaction}
+\label{unitary}
+We consider a system formed by a two-level atom and a cavity confined electric field. The Jaynes-Cummings Hamiltonian is
+\begin{IEEEeqnarray*}{rCl}
+H &= & \delta Z + g(a\sigma_-+a^\dagger\sigma_+)\\
+\end{IEEEeqnarray*}
+where $g$ is some constant which describes the strength of the interaction, $\delta=\frac{\omega-\omega_0}{2}$ is the {\em detuning}, $a^\dagger,a$ are respectively the creation,annihilation operators~\footnote{It seems to me the book mixes up $a^\dagger$ with $a$ in several places.} on the single mode field, and $\sigma_\pm$ are operators acting on the two-level atom, namely:
+\begin{IEEEeqnarray*}{rCl}
+\sigma_+ & =& \frac{1}{2}(X+\iu Y) \\
+& = &\begin{bmatrix}
+       0 & 1\\
+       0 & 0
+    \end{bmatrix}\\
+\sigma_- & =& \frac{1}{2}(X-\iu Y) \\
+& = &\begin{bmatrix}
+    0 & 0\\
+    1 & 0
+ \end{bmatrix}\\
+\end{IEEEeqnarray*}
+
+We recall
+\begin{IEEEeqnarray*}{rCl}
+\forall n \in\mathbb{N},\quad a^\dagger\ket{n} &= &\sqrt{n+1}\ket{n+1}  \\
+a\ket{n+1} &= &\sqrt{n+1}\ket{n}  \\
+a\ket{0} & = &0
+\end{IEEEeqnarray*}
+
+The first label corresponding to electric field, the second to atom, we have:
+\begin{IEEEeqnarray*}{rCl}
+   Z\ket{00} &= & \ket{00} \\
+   Z\ket{01} &= & -\ket{01} \\
+   Z\ket{10} &= & \ket{10} \\
+   a\sigma_-\ket{00} &= & 0 \\
+   a\sigma_-\ket{01} &= & 0 \\
+   a\sigma_-\ket{10} &= & \ket{01} \\
+   a^\dagger\sigma_+\ket{00} &= & 0 \\
+   a^\dagger\sigma_+\ket{01} &= & \ket{10} \\
+   a^\dagger\sigma_+\ket{10} &= & 0 \\
+\end{IEEEeqnarray*}
+This shows that $F=\spn\{\ket{00},\ket{01},\ket{10}\}$ is an invariant subspace for $H$, i.e. $H(F)\subset F$. The same is true for $H^n, n\in\mathbb{N}$ and $U=e^{-\iu H\Delta t}=\sum \frac{(-\iu\Delta t)^n}{n!}H^n$. 
+
+Let's find the representation of $H$ in the basis $(\ket{00}, \ket{01},\ket{10},\ket{11})$. 
+
+The representation of $Z=I\otimes Z$ is
+\begin{IEEEeqnarray*}{rCl}
+I\otimes Z &= &\begin{bNiceMatrix} \Block[c]{2-2}<\LARGE>{1\boldsymbol{Z}}  & & \Block[c]{2-2}<\LARGE>{0\boldsymbol{Z}}&\\
+   \hphantom{AA}&\hphantom{AA}&\hphantom{AA}&\hphantom{AA}\\
+   \Block[c]{2-2}<\LARGE>{0\boldsymbol{Z}}  & & \Block[c]{2-2}<\LARGE>{1\boldsymbol{Z}}&\\
+   &&&\\
+\end{bNiceMatrix}  \\
+&= &\begin{bNiceMatrix} \Block[c]{2-2}<\LARGE>{\boldsymbol{Z}}  & & \Block[c]{2-2}<\LARGE>{\boldsymbol{0}}&\\
+   \hphantom{AA}&\hphantom{AA}&\hphantom{AA}&\hphantom{AA}\\
+   \Block[c]{2-2}<\LARGE>{\boldsymbol{0}}  & & \Block[c]{2-2}<\LARGE>{\boldsymbol{Z}}&\\
+   &&&\\
+\end{bNiceMatrix}  \\
+&= &\begin{bNiceMatrix} 1 & 0& 0&0\\
+   \text{\kern 0.37em}0\text{\kern 0.37em}&\text{\kern 0.37em}-1\text{\kern 0.37em}&\text{\kern 0.37em}0\text{\kern 0.37em}&\text{\kern 0.37em}0\text{\kern 0.37em}\\
+   0  &0 & 1&0\\
+   0&0&0&-1\\
+\end{bNiceMatrix}  \\
+\end{IEEEeqnarray*}
+
+The representation of annihilation operator in the $(\ket{n})_{n\in\mathbb{N}}$ basis of the electric field state space is
+\setcounter{MaxMatrixCols}{20}
+\NiceMatrixOptions{cell-space-limits = 1pt}
+\pgfdeclarelayer{bg}
+\pgfsetlayers{bg,main}
+\begin{IEEEeqnarray*}{rCl}
+a 
+   & = &\begin{bNiceMatrix}[nullify-dots,first-row,last-col]
+	&                                            &       & &    &        &       & & n&  &&&&&&\\
+	 0&1&  & &         &             & & &  &       &&\\
+	           &           & \sqrt{2}   &    &          &        &       &\Block[c]{3-3}<\LARGE>{\boldsymbol{0}}  & &  &&&&&\\
+          &                                      &       &\sqrt{3} &    &        &       & & &&&&&&\\
+          &                                            &       & & \sqrt{4}  &        &       & & & && &&&\\
+               &                                    &       &&&             & & & &        &&&&&&\\
+               &                                            & & &         &  &  &       && &&&&&\\
+         &                                            &       & &    &             &                 &       &&&&&&&\\
+          &                                            &       & &    &        &                                                &       &\sqrt{n} & &&&&&&n-1\\
+          &                                            &       & &    &        &                                                      &       &&&&&&&\\
+		  &                                            &       & &    &        &       & & &  &&&&&\\
+		  &                                            & \Block[c]{3-3}<\LARGE>{\boldsymbol{0}}       & &    &        &       & & &  &&&&&\\
+		  &                                            &       & &    &        &       & & &  &&&&&\\
+		  &                                            &       & &    &        &       & & &  &&&&&\\
+		  &                                            &       & &    &        &       & & &  &&&&&\NotEmpty\\
+               &                                      & & &         &             &             &&                                   &       &&&&&\NotEmpty
+   \CodeAfter
+   \begin{tikzpicture}[]
+	
+	%\draw (1,1) -- (2,1)--(0,0);
+   %\draw (2-2) circle (2mm);
+   %\draw (5-5) circle (2mm);
+   %\draw (2-2) -- (5-5);
+   %\draw (-5,-5) -- (5,5);
+   %\draw[dot diameter=1pt, dot spacing=5pt, dots] (-7,1.97) -- (-5.1,1.27);
+   \draw[dot diameter=1pt, dot spacing=5pt, dots] (-3.5,-0.1) -- (-1.1,-2.2);
+   
+   \draw[dot diameter=1pt, dot spacing=5pt, dots] (1-1.south) -- (15-15.west);
+   \draw[dot diameter=1pt, dot spacing=5pt, dots] (4-5.south) -- (8-9.west);
+   %\draw[dot diameter=1pt, dot spacing=5pt, dots] (3-10.south) -- (5-12.west);
+   %\draw[dot diameter=1pt, dot spacing=5pt, dots] (5-12.south) -- (7-14.west);
+   %\draw[dot diameter=1pt, dot spacing=5pt, dots] (1-2.south) -- (1-5.south west);
+   %\draw[dot diameter=1pt, dot spacing=5pt, dots] (6-7.south) -- (6-10.south west);
+   %\line{2-2}{5-5}.north east;
+   %\line{2-2}{1-5}.north;
+
+   \begin{pgfonlayer}{bg}
+	%\draw (1-8) -- (8-15); 
+   \end{pgfonlayer}
+   \end{tikzpicture}\end{bNiceMatrix}
+\end{IEEEeqnarray*}
+
+The representation of $a\otimes\sigma_-$ is then
+\begin{IEEEeqnarray*}{rCl}
+   a\otimes\sigma_- &= &\begin{bNiceMatrix} \Block[c]{2-2}<\LARGE>{0\boldsymbol{\sigma_-}}  & & \Block[c]{2-2}<\LARGE>{1\boldsymbol{\sigma_-}}&\\
+      \hphantom{AA}&\hphantom{AA}&\hphantom{AA}&\hphantom{AA}\\
+      \Block[c]{2-2}<\LARGE>{0\boldsymbol{\sigma_-}}  & & \Block[c]{2-2}<\LARGE>{0\boldsymbol{\sigma_-}}&\\
+      &&&\\
+   \end{bNiceMatrix}  \\
+   &= &\begin{bNiceMatrix} \Block[c]{2-2}<\LARGE>{\boldsymbol{0}}  & & \Block[c]{2-2}<\LARGE>{\boldsymbol{\sigma_-}}&\\
+      \hphantom{AA}&\hphantom{AA}&\hphantom{AA}&\hphantom{AA}\\
+      \Block[c]{2-2}<\LARGE>{\boldsymbol{0}}  & & \Block[c]{2-2}<\LARGE>{\boldsymbol{0}}&\\
+      &&&\\
+   \end{bNiceMatrix}  \\
+   &= &\begin{bNiceMatrix} 0 & 0& 0&0\\
+      \text{\kern 0.4em}0\text{\kern 0.4em}&\text{\kern 0.4em}0\text{\kern 0.4em}&\text{\kern 0.4em}1\text{\kern 0.4em}&\text{\kern 0.4em}0\text{\kern 0.4em}\\
+      0  &0 & 0&0\\
+      0&0&0&0\\
+   \end{bNiceMatrix}  \\
+   \end{IEEEeqnarray*}
+
+Similarly,
+\begin{IEEEeqnarray*}{rCl}
+   a^\dagger\otimes\sigma_+ &= &\begin{bNiceMatrix} \Block[c]{2-2}<\LARGE>{0\boldsymbol{\sigma_+}}  & & \Block[c]{2-2}<\LARGE>{0\boldsymbol{\sigma_-}}&\\
+      \hphantom{AA}&\hphantom{AA}&\hphantom{AA}&\hphantom{AA}\\
+      \Block[c]{2-2}<\LARGE>{1\boldsymbol{\sigma_+}}  & & \Block[c]{2-2}<\LARGE>{0\boldsymbol{\sigma_+}}&\\
+      &&&\\
+   \end{bNiceMatrix}  \\
+   &= &\begin{bNiceMatrix} \Block[c]{2-2}<\LARGE>{\boldsymbol{0}}  & & \Block[c]{2-2}<\LARGE>{\boldsymbol{0}}&\\
+      \hphantom{AA}&\hphantom{AA}&\hphantom{AA}&\hphantom{AA}\\
+      \Block[c]{2-2}<\LARGE>{\boldsymbol{\sigma_+}}  & & \Block[c]{2-2}<\LARGE>{\boldsymbol{0}}&\\
+      &&&\\
+   \end{bNiceMatrix}  \\
+   &= &\begin{bNiceMatrix} 0 & 0& 0&0\\
+      \text{\kern 0.4em}0\text{\kern 0.4em}&\text{\kern 0.4em}0\text{\kern 0.4em}&\text{\kern 0.4em}0\text{\kern 0.4em}&\text{\kern 0.4em}0\text{\kern 0.4em}\\
+      0  &1 & 0&0\\
+      0&0&0&0\\
+   \end{bNiceMatrix}  \\
+   \end{IEEEeqnarray*}
+
+  Thus the representation of $H$ in the basis $(\ket{00}, \ket{01},\ket{10},\ket{11})$ is 
+  \begin{IEEEeqnarray*}{rCl}
+   H &= &\begin{bNiceMatrix} \delta & 0& 0&0\\
+      \text{\kern 0.37em}0\text{\kern 0.37em}&\text{\kern 0.37em}-\delta\text{\kern 0.37em}&\text{\kern 0.37em}g\text{\kern 0.37em}&\text{\kern 0.37em}0\text{\kern 0.37em}\\
+      0  &g & \delta&0\\
+      0&0&0&-\delta\\
+   \end{bNiceMatrix}  \\
+   \end{IEEEeqnarray*}
+
+   The representation of the restriction of $H$ in the basis $(\ket{00}, \ket{01},\ket{10})$ is 
+   \begin{IEEEeqnarray*}{rCl}
+    H &= &\begin{bNiceMatrix} \text{\kern 0.37em}\delta\text{\kern 0.37em}&  \text{\kern 0.37em}0\text{\kern 0.37em}&  \text{\kern 0.37em}0\text{\kern 0.37em}\\[0.8em]
+       0&\text{\kern 0.37em}-\delta\text{\kern 0.37em}&\text{\kern 0.37em}g\text{\kern 0.37em}\\[0.8em]
+       0  &g & \delta\\
+    \end{bNiceMatrix}  \\
+    &= &\begin{bNiceMatrix} \text{\kern 0.37em}\delta\text{\kern 0.37em}&  \text{\kern 0.37em}0\text{\kern 0.37em}&  \text{\kern 0.37em}0\text{\kern 0.37em}\\[0.8em]
+      \text{\kern 0.37em}0\text{\kern 0.37em}&\Block[c]{2-2}<\LARGE>{\boldsymbol{H_1}} &\\[0.8em]
+      0  & & \\
+   \end{bNiceMatrix}  \\
+    \end{IEEEeqnarray*}
+
+Block calculus shows that
+\begin{IEEEeqnarray*}{rCl}
+e^{-\iu H \Delta t} &= & \begin{bNiceMatrix} \text{\kern 0.37em}e^{-\iu \delta \Delta t}\text{\kern 0.37em}&  \text{\kern 0.37em}0\text{\kern 0.37em}&  \text{\kern 0.37em}0\text{\kern 0.37em}\\[0.8em]
+   \text{\kern 0.37em}0\text{\kern 0.37em}&\Block[c]{2-2}<\large>{\boldsymbol{e^{-\iu H_1\Delta t}}} &\\[0.8em]
+   0  & & \\
+\end{bNiceMatrix}  \\
+\end{IEEEeqnarray*}
+
+Let $\Omega=\sqrt{g^2+\delta^2}$, the {\em Rabi frequency}.
+
+\begin{IEEEeqnarray*}{rCl}
+H_1^2 &= &\begin{bmatrix} \Omega^2 & 0\\[0.8em]
+   0 & \Omega ^2
+\end{bmatrix}  \\
+&= & \Omega^2 I_2 \\
+\end{IEEEeqnarray*}
+
+This shows that
+\begin{IEEEeqnarray*}{rCl}
+\forall n\in\mathbb{N},\quad H_1^{2n} &= & \Omega^{2n} I_2  \\
+H_1^{2n+1} &= & \Omega^{2n} H_1  \\
+\end{IEEEeqnarray*}
+
+Then,
+\begin{IEEEeqnarray*}{rCl}
+e^{-\iu H_1\Delta t} &= &\sum_{n=0}^{+\infty}\frac{(-\iu \Omega\Delta t)^{2n}}{(2n)!}I_2+\frac{1}{\Omega}\sum_{n=0}^{+\infty}\frac{(-\iu \Omega\Delta t)^{2n+1}}{(2n+1)!}H_1  \\
+&= &\sum_{n=0}^{+\infty}(-1)^n\frac{(\Omega\Delta t)^{2n}}{(2n)!}I_2-\iu\frac{1}{\Omega}\sum_{n=0}^{+\infty}(-1)^n\frac{( \Omega\Delta t)^{2n+1}}{(2n+1)!}H_1  \\
+& = &\cos(\Omega t)I_2 -\iu \frac{1}{\Omega} \sin(\Omega t)H_1
+\end{IEEEeqnarray*}
+
+Finally the matrix $U$ is 
+\begin{IEEEeqnarray*}{rCl}
+e^{-\iu H\Delta t} &= & \begin{bNiceMatrix}[nullify-dots,first-row,last-col]
+   \text{\tiny $U\ket{00}$}&\text{\tiny $U\ket{01}$}&\text{\tiny $U\ket{10}$}\\
+   \text{\kern 0.37em}e^{-\iu \delta \Delta t}\text{\kern 0.37em}&  \text{\kern 0.37em}0\text{\kern 0.37em}&  \text{\kern 0.37em}0\text{\kern 0.37em}&\text{\tiny $\ket{00}$}\\[0.8em]
+   \text{\kern 0.37em}0\text{\kern 0.37em}&\cos(\Omega t)+\iu \frac{\delta}{\Omega}\sin(\Omega t) &-\iu \frac{g}{\Omega}\sin(\Omega t)&\text{\tiny$\ket{01}$}\\[0.8em]
+   0  &-\iu \frac{g}{\Omega}\sin(\Omega t) &\cos(\Omega t)-\iu \frac{\delta}{\Omega}\sin(\Omega t)&\text{\tiny$\ket{10}$}\\
+\end{bNiceMatrix}  \\
+\end{IEEEeqnarray*}
+
+\section{Circuit model for amplitude damping}
+
+We want to prove that the following circuit models the amplitude damping operation
+
+\begin{center}
+\begin{quantikz}
+\lstick{$\alpha\ket{0}+\beta\ket{1}$}    &  \ctrl{1}           &  \targ{}  &   \qw   & \qw \\
+\lstick{$\ket{0}$} & \gate{R_y(\theta)}  & \ctrl{-1} &  \meter{} & \qw
+\end{quantikz}\end{center}
+
+Recall that
+\begin{IEEEeqnarray*}{rCl}
+R_y(\theta) &= & e^{-\iu \frac{\theta}{2}Y} \\
+& = &\begin{bmatrix}
+					\cos(\frac{\theta}{2}) & -\sin(\frac{\theta}{2})  \\[1em]
+					\sin(\frac{\theta}{2}) &\cos(\frac{\theta}{2})
+\end{bmatrix}
+\end{IEEEeqnarray*}
+
+Initially the two-qubit state is
+\begin{IEEEeqnarray*}{rCl}
+ (\alpha\ket{0}+\beta\ket{1})\ket{0}&= & \alpha\ket{00}+\beta\ket{10}  \\
+\end{IEEEeqnarray*}
+
+After the controlled $R_y$ gate it becomes
+\begin{IEEEeqnarray*}{rCl}
+	\alpha\ket{00}+\beta\ket{1}R_y(\theta)\ket{0} 	& =&  \alpha\ket{00}+\beta\ket{1}(\cos(\frac{\theta}{2})\ket{0}+\sin(\frac{\theta}{2})\ket{1})  \\
+	& =&  \alpha\ket{00}+\beta(\cos(\frac{\theta}{2})\ket{10}+\sin(\frac{\theta}{2})\ket{11})  \\
+\end{IEEEeqnarray*}
+
+After the controlled not gate,
+\begin{IEEEeqnarray*}{rCl}
+ & & \alpha\ket{00}+\beta(\cos(\frac{\theta}{2})\ket{10}+\sin(\frac{\theta}{2})\ket{01})  \\
+\end{IEEEeqnarray*}
+
+This is the effect of amplitude damping, with probability of 1 be switched to 0, or one photon being lost to environment, being $\gamma=\sin^2(\frac{\theta}{2})$.
+
+\end{document}
